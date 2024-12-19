@@ -1,3 +1,4 @@
+const readline = require('readline');
 const WebSocket = require('ws');
 
 // 建立 WebSocket 伺服器
@@ -8,6 +9,7 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (message) => {
         console.log(`Received: ${message}`);
+        // 如果接收到 START 指令，廣播倒計時
         if (message === 'START') {
             broadcastCountdown();
         }
@@ -18,7 +20,7 @@ wss.on('connection', (ws) => {
     });
 });
 
-// 廣播倒計時
+// 廣播倒計時功能
 function broadcastCountdown() {
     console.log('Broadcasting START_COUNTDOWN to all clients...');
     wss.clients.forEach((client) => {
@@ -29,10 +31,22 @@ function broadcastCountdown() {
     });
 }
 
-// 掛載廣播函數和 WebSocket 伺服器到全局作用域
+// 使用 readline 接收終端輸入
+const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+});
+
+rl.on('line', (input) => {
+    if (input === 'broadcastCountdown') {
+        broadcastCountdown();
+    } else {
+        console.log(`Unknown command: ${input}`);
+    }
+});
+
+// 掛載廣播函數和 WebSocket 伺服器到全局作用域（可選）
 global.broadcastCountdown = broadcastCountdown;
 global.wss = wss;
 
 console.log('WebSocket server is running on ws://localhost:8080');
-console.log(global.broadcastCountdown);
-
