@@ -3,52 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTU Run for Money Countdown</title>
+    <title>NTU run for money Countdown</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             text-align: center;
             margin: 0;
             padding: 0;
-            background-color: black;
-            color: white;
+            background-color: black; /* 背景設定為黑色 */
+            color: white; /* 預設文字為白色 */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            height: 100vh;
+            height: 100vh; /* 設定視窗高度，讓內容充滿頁面 */
         }
         h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-top: 20%;
+            font-size: 2rem; /* 標題字體大小 */
+            font-weight: bold; /* 標題文字加粗 */
+            margin: 10% auto 0; /* 距離頂部距離，水平居中 */
         }
         #timer {
             font-size: 4rem;
             font-weight: bold;
             color: red;
+            position: relative; /* 相對於原位置調整 */
+            top: -20%; /* 往上移動 20px，可調整這個值 */
+            margin: 0;
         }
         button {
-            margin-bottom: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            font-weight: bold;
-            color: black;
-            background-color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            margin-bottom: 20px; /* 與底部留距離 */
+            padding: 10px 20px; /* 按鈕內邊距 */
+            font-size: 16px; /* 字體大小 */
+            font-weight: bold; /* 字體加粗 */
+            color: black; /* 按鈕文字顏色 */
+            background-color: white; /* 按鈕背景顏色 */
+            border: none; /* 去掉邊框 */
+            border-radius: 5px; /* 按鈕圓角 */
+            cursor: pointer; /* 指針樣式 */
+            width: 80%; /* 按鈕寬度占80% */
+            max-width: 300px; /* 限制按鈕寬度的最大值 */
+            margin: 0 auto 20px; /* 按鈕水平居中，底部留距 */
         }
         button:hover {
-            background-color: #f0f0f0;
+            background-color: #f0f0f0; /* 鼠標懸浮背景顏色變化 */
         }
     </style>
 </head>
 <body>
-    <h1>NTU Run for Money Countdown</h1>
+    <h1>NTU run for money Countdown</h1>
     <div id="timer">Waiting to start...</div>
     <button onclick="window.location.href='map.html'">Go to Map</button>
     <script>
-        // WebSocket and Countdown logic can be added here
+        let timerInterval;
+
+        // 建立 WebSocket 連接
+        const socket = new WebSocket('ws://localhost:8080');
+
+        // 接收 WebSocket 訊息
+        socket.addEventListener('message', (event) => {
+            if (event.data === 'START_COUNTDOWN') {
+                startCountdown();
+            }
+        });
+
+        // 倒計時功能
+        function startCountdown() {
+            const countdownDate = new Date().getTime() + 90 * 60 * 1000;
+
+            timerInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = countdownDate - now;
+
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("timer").textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById("timer").textContent = "Time's up!";
+                }
+            }, 1000);
+        }
     </script>
 </body>
 </html>
