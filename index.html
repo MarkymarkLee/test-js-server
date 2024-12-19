@@ -17,19 +17,6 @@
             justify-content: space-between;
             height: 100vh; /* 設定視窗高度，讓內容充滿頁面 */
         }
-        h1 {
-            font-size: 2rem; /* 標題字體大小 */
-            font-weight: bold; /* 標題文字加粗 */
-            margin: 10% auto 0; /* 距離頂部距離，水平居中 */
-        }
-        #timer {
-            font-size: 4rem;
-            font-weight: bold;
-            color: red;
-            position: relative; /* 相對於原位置調整 */
-            top: -20%; /* 往上移動 20px，可調整這個值 */
-            margin: 0;
-        }
         button {
             padding: 10px 20px; /* 按鈕內邊距 */
             font-size: 16px; /* 字體大小 */
@@ -39,17 +26,33 @@
             border: none; /* 去掉邊框 */
             border-radius: 5px; /* 按鈕圓角 */
             cursor: pointer;
-            margin-bottom: 10%;
+            margin: 10px auto 0; /* 上 10px，自動水平居中，下 0px */
+            width: 80%; /* 按鈕寬度占80% */
+            max-width: 300px; /* 限制按鈕最大寬度 */
         }
         button:hover {
             background-color: #f0f0f0; /* 鼠標懸浮背景顏色變化 */
         }
+        h1 {
+            font-size: 2rem; /* 標題字體大小 */
+            font-weight: bold; /* 標題文字加粗 */
+            position: relative; /* 相對於原位置調整 */
+            top: -30%; /* 往上移動 20px，可調整這個值 */
+            margin: 0;
+        }
+        #timer {
+            font-size: 4rem;
+            font-weight: bold;
+            color: red;
+            position: relative; /* 相對於原位置調整 */
+            top: -60%; /* 往上移動 20px，可調整這個值 */
+            margin: 0;
     </style>
 </head>
 <body>
+    <button onclick="window.location.href='map.html'">Go to Map</button>
     <h1>NTU run for money Countdown</h1>
     <div id="timer">Waiting to start...</div>
-    <button onclick="window.location.href='map.html'">Go to Map</button>
     <script>
         let timerInterval;
 
@@ -71,18 +74,4 @@
                 const now = new Date().getTime();
                 const distance = countdownDate - now;
 
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                document.getElementById("timer").textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-                if (distance < 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById("timer").textContent = "Time's up!";
-                }
-            }, 1000);
-        }
-    </script>
-</body>
-</html>
+                const hours = M
