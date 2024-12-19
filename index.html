@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Main Page - NTU Run for Money Countdown</title>
+    <title>NTU Run for Money Countdown</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,30 +12,34 @@
             padding: 0;
             background-color: black;
             color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
         }
         h1 {
             font-size: 2rem;
             font-weight: bold;
-            margin-top: 20px;
+            margin-top: 20%;
         }
         #timer {
             font-size: 4rem;
             font-weight: bold;
             color: red;
-            margin-top: 20px;
         }
         button {
-            margin-top: 20px;
+            margin-bottom: 20px;
             padding: 10px 20px;
             font-size: 16px;
-            background-color: #007bff;
-            color: white;
+            font-weight: bold;
+            color: black;
+            background-color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #f0f0f0;
         }
     </style>
 </head>
@@ -43,55 +47,8 @@
     <h1>NTU Run for Money Countdown</h1>
     <div id="timer">Waiting to start...</div>
     <button onclick="window.location.href='map.html'">Go to Map</button>
-
     <script>
-        let timerInterval;
-
-        // 建立 WebSocket 連接
-        const socket = new WebSocket('ws://localhost:8080');
-
-        socket.addEventListener('open', () => {
-            console.log('Connected to server');
-        });
-
-        socket.addEventListener('message', (event) => {
-            console.log('Message received from server:', event.data);
-            if (event.data === 'START_COUNTDOWN') {
-                console.log('START_COUNTDOWN received, starting countdown');
-                startCountdown();
-            }
-        });
-
-        function startCountdown() {
-            console.log('Countdown started');
-            const countdownDate = new Date().getTime() + 90 * 60 * 1000;
-
-            timerInterval = setInterval(() => {
-                const now = new Date().getTime();
-                const distance = countdownDate - now;
-
-                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-
-                document.getElementById("timer").textContent =
-                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-
-                if (distance < 0) {
-                    clearInterval(timerInterval);
-                    document.getElementById("timer").textContent = "Time's up!";
-                }
-            }, 1000);
-        }
-
-        socket.addEventListener('error', (error) => {
-            console.error('WebSocket error:', error);
-        });
-
-        socket.addEventListener('close', () => {
-            console.log('WebSocket connection closed');
-        });
+        // WebSocket and Countdown logic can be added here
     </script>
 </body>
 </html>
-
