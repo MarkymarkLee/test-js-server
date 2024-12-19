@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NTU run for money Countdown</title>
+    <title>NTU Run for Money Countdown</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,7 +36,7 @@
             font-size: 2rem; /* 標題字體大小 */
             font-weight: bold; /* 標題文字加粗 */
             position: relative; /* 相對於原位置調整 */
-            top: -30%; /* 往上移動 20px，可調整這個值 */
+            top: -30%; /* 往上移動 20% */
             margin: 0;
         }
         #timer {
@@ -44,19 +44,34 @@
             font-weight: bold;
             color: red;
             position: relative; /* 相對於原位置調整 */
-            top: -60%; /* 往上移動 20px，可調整這個值 */
+            top: -60%; /* 往上移動 40% */
             margin: 0;
+        }
+        @media screen and (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+                top: -10%;
+            }
+            #timer {
+                font-size: 2.5rem;
+                top: -30%;
+            }
+            button {
+                width: 90%;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
     <button onclick="window.location.href='map.html'">Go to Map</button>
-    <h1>NTU run for money Countdown</h1>
+    <h1>NTU Run for Money Countdown</h1>
     <div id="timer">Waiting to start...</div>
     <script>
         let timerInterval;
 
         // 建立 WebSocket 連接
-        const socket = new WebSocket('ws://localhost:8080');
+        const socket = new WebSocket('ws://your-server-ip:8080'); // 修改為您的伺服器地址
 
         // 接收 WebSocket 訊息
         socket.addEventListener('message', (event) => {
@@ -67,10 +82,34 @@
 
         // 倒計時功能
         function startCountdown() {
-            const countdownDate = new Date().getTime() + 90 * 60 * 1000;
+            const countdownDate = new Date().getTime() + 90 * 60 * 1000; // 90分鐘倒計時
 
             timerInterval = setInterval(() => {
                 const now = new Date().getTime();
                 const distance = countdownDate - now;
 
-                const hours = M
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('timer').innerHTML = `${hours}:${minutes}:${seconds}`;
+
+                // 倒計時結束
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    document.getElementById('timer').innerHTML = 'Time is up!';
+                }
+            }, 1000);
+        }
+
+        // 處理 WebSocket 連接錯誤
+        socket.addEventListener('error', (error) => {
+            console.error('WebSocket Error:', error);
+        });
+
+        socket.addEventListener('close', () => {
+            console.log('WebSocket connection closed.');
+        });
+    </script>
+</body>
+</html>
