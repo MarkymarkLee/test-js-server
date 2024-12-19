@@ -3,37 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Map Page</title>
+    <title>Map</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            text-align: center;
             margin: 0;
             padding: 0;
-            background-color: white;
+            background-color: black;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100vh;
+            text-align: center;
         }
         img {
             max-width: 100%;
-            height: auto;
+            max-height: calc(100vh - 60px); /* 確保地圖大小適應手機畫面 */
+            object-fit: contain;
         }
         button {
-            margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
+            font-weight: bold;
+            color: white; /* 白色字體 */
+            background-color: black; /* 黑色背景 */
+            border: 2px solid white; /* 添加白色邊框 */
             border-radius: 5px;
             cursor: pointer;
+            margin-bottom: 10px;
         }
         button:hover {
-            background-color: #0056b3;
+            background-color: #333; /* 按鈕 hover 時變成深灰色 */
         }
     </style>
 </head>
 <body>
-    <h1>Map Page</h1>
-    <img src="台大逃走中 - 安森地圖.png" alt="大安森林公園地圖">
-    <button onclick="window.location.href='index.html'">Back to Main Page</button>
+    <img src="台大逃走中 - 安森地圖.png" alt="Map">
+    <button onclick="window.location.href='index.html'">Go to Countdown</button>
 </body>
 </html>
