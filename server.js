@@ -1,11 +1,22 @@
-const readline = require('readline');
+const express = require('express');
 const WebSocket = require('ws');
+const readline = require('readline');
+
+const app = express();
+
+// 設置靜態文件路徑
+app.use(express.static('public'));
 
 // 獲取 Heroku 提供的動態 PORT
 const port = process.env.PORT || 8080;
 
+// 啟動 Express 伺服器
+const server = app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
+});
+
 // 建立 WebSocket 伺服器
-const wss = new WebSocket.Server({ port });
+const wss = new WebSocket.Server({ server });
 
 wss.on('connection', (ws) => {
     console.log('Client connected');
@@ -28,7 +39,6 @@ function broadcastCountdown() {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send('START_COUNTDOWN');
-            console.log('START_COUNTDOWN sent to a client');
         }
     });
 }
@@ -46,5 +56,3 @@ rl.on('line', (input) => {
         console.log(`Unknown command: ${input}`);
     }
 });
-
-console.log(`WebSocket server is running on port ${port}`);
