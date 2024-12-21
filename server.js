@@ -4,36 +4,39 @@ const readline = require('readline');
 
 const app = express();
 
-// 設置靜態文件路徑
+// 设置静态文件路径
 app.use(express.static('public'));
 
-// 獲取 Heroku 提供的動態 PORT
+// 获取动态 PORT，确保监听 0.0.0.0
 const port = process.env.PORT || 8080;
 
-// 啟動 Express 伺服器
-const server = app.listen(port, () => {
+// 启动 Express 服务器
+const server = app.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
 });
 
-// 建立 WebSocket 伺服器
+// 创建 WebSocket 服务器
 const wss = new WebSocket.Server({ server });
 
+// WebSocket 连接事件处理
 wss.on('connection', (ws) => {
     console.log('Client connected');
 
+    // 处理客户端消息
     ws.on('message', (message) => {
         console.log(`Received: ${message}`);
-        if (message === 'START') {
+        if (message.trim() === 'START') {
             broadcastCountdown();
         }
     });
 
+    // 处理客户端断开连接
     ws.on('close', () => {
         console.log('Client disconnected');
     });
 });
 
-// 廣播倒計時功能
+// 广播倒计时功能
 function broadcastCountdown() {
     console.log('Broadcasting START_COUNTDOWN to all clients...');
     wss.clients.forEach((client) => {
@@ -43,14 +46,14 @@ function broadcastCountdown() {
     });
 }
 
-// 使用 readline 接收終端輸入
+// 使用 readline 接收终端输入
 const rl = readline.createInterface({
     input: process.stdin,
     output: process.stdout,
 });
 
 rl.on('line', (input) => {
-    if (input === 'broadcastCountdown') {
+    if (input.trim() === 'broadcastCountdown') {
         broadcastCountdown();
     } else {
         console.log(`Unknown command: ${input}`);
