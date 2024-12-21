@@ -1,15 +1,17 @@
 const readline = require('readline');
 const WebSocket = require('ws');
 
+// 獲取 Heroku 提供的動態 PORT
+const port = process.env.PORT || 8080;
+
 // 建立 WebSocket 伺服器
-const wss = new WebSocket.Server({ port: 8080 });
+const wss = new WebSocket.Server({ port });
 
 wss.on('connection', (ws) => {
     console.log('Client connected');
 
     ws.on('message', (message) => {
         console.log(`Received: ${message}`);
-        // 如果接收到 START 指令，廣播倒計時
         if (message === 'START') {
             broadcastCountdown();
         }
@@ -45,8 +47,4 @@ rl.on('line', (input) => {
     }
 });
 
-// 掛載廣播函數和 WebSocket 伺服器到全局作用域（可選）
-global.broadcastCountdown = broadcastCountdown;
-global.wss = wss;
-
-console.log('WebSocket server is running on ws://localhost:8080');
+console.log(`WebSocket server is running on port ${port}`);
