@@ -1,4 +1,3 @@
-// 引入所需模組
 const http = require('http');
 const WebSocket = require('ws');
 const readline = require('readline');
@@ -45,6 +44,7 @@ function broadcastCountdown() {
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send('START_COUNTDOWN');
+            console.log('START_COUNTDOWN sent to a client');
         }
     });
 }
@@ -62,3 +62,7 @@ rl.on('line', (input) => {
         console.log(`Unknown command: ${input}`);
     }
 });
+
+// 掛載廣播函數和 WebSocket 伺服器到全局作用域（可選）
+global.broadcastCountdown = broadcastCountdown;
+global.wss = wss;
