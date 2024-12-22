@@ -23,6 +23,3 @@ primary_region = 'nrt'
   memory = '1gb'
   cpu_kind = 'shared'
   cpus = 1
-
-[http_service]
-  min_machines_running = 1
