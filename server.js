@@ -1,18 +1,17 @@
-const express = require('express');
-const app = express();
-
-// 提供靜態文件
-app.use(express.static('public'));
-
-// WebSocket server 初始化
-const server = require('http').createServer(app);
+const http = require('http');
 const WebSocket = require('ws');
 const readline = require('readline');
 
 // 獲取 Fly.io 提供的動態 PORT
 const port = process.env.PORT || 8080;
 
-// 啟動伺服器
+// 創建 HTTP 伺服器
+const server = http.createServer((req, res) => {
+    res.writeHead(200, { 'Content-Type': 'text/plain' });
+    res.end('WebSocket server is running');
+});
+
+// 啟動 HTTP 伺服器
 server.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
 });
@@ -25,11 +24,11 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (message) => {
         console.log(`Received: ${message}`);
-        // 處理 START 指令，執行廣播
+        // 如果接收到 START 指令，執行廣播
         if (message === 'START') {
             broadcastCountdown();
         }
-        // 處理 broadcastCountdown 指令，執行廣播
+        // 如果接收到 broadcastCountdown 指令，執行廣播
         if (message === 'broadcastCountdown') {
             broadcastCountdown();
         }
@@ -43,13 +42,13 @@ wss.on('connection', (ws) => {
     ws.send('Welcome to WebSocket server!');
 });
 
-
 // 廣播倒計時功能
 function broadcastCountdown() {
     console.log('Broadcasting START_COUNTDOWN to all clients...');
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send('START_COUNTDOWN');
+            console.log('START_COUNTDOWN sent to a client');
         }
     });
 }
@@ -67,3 +66,7 @@ rl.on('line', (input) => {
         console.log(`Unknown command: ${input}`);
     }
 });
+
+// 掛載廣播函數和 WebSocket 伺服器到全局作用域（可選）
+global.broadcastCountdown = broadcastCountdown;
+global.wss = wss;
