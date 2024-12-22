@@ -1,15 +1,18 @@
+const express = require('express');
 const http = require('http');
 const WebSocket = require('ws');
 const readline = require('readline');
+
+const app = express();
+
+// 提供靜態文件
+app.use(express.static('public'));
 
 // 獲取 Fly.io 提供的動態 PORT
 const port = process.env.PORT || 8080;
 
 // 創建 HTTP 伺服器
-const server = http.createServer((req, res) => {
-    res.writeHead(200, { 'Content-Type': 'text/plain' });
-    res.end('WebSocket server is running');
-});
+const server = http.createServer(app);
 
 // 啟動 HTTP 伺服器
 server.listen(port, '0.0.0.0', () => {
