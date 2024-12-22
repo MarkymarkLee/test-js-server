@@ -22,17 +22,20 @@ server.listen(port, '0.0.0.0', () => {
 // 建立 WebSocket 伺服器
 const wss = new WebSocket.Server({ server });
 
+
 wss.on('connection', (ws) => {
     console.log('Client connected');
 
     ws.on('message', (message) => {
-        console.log(`Received: ${message}`);
-        if (message === 'START' || message === 'broadcastCountdown') {
+        const trimmedMessage = message.trim(); // 去除多餘空格
+        console.log(`Received: ${trimmedMessage}`);
+        if (trimmedMessage === 'START' || trimmedMessage === 'broadcastCountdown') {
             broadcastCountdown();
         } else {
-            console.log(`Unknown message received: ${message}`);
+            console.log(`Unknown message received: ${trimmedMessage}`);
         }
     });
+        
 
     ws.on('close', () => {
         console.log('Client disconnected');
