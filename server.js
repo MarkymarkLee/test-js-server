@@ -1,6 +1,6 @@
 const express = require('express');
 const http = require('http');
-const WebSocket = require('ws');
+const fs = require('fs');
 const readline = require('readline');
 
 const app = express();
@@ -19,58 +19,16 @@ server.listen(port, '0.0.0.0', () => {
     console.log(`Server is running on port ${port}`);
 });
 
-// 建立 WebSocket 伺服器
-const wss = new WebSocket.Server({ server });
+let countdownStartTime = null;
+const countdownDuration = 60 * 1000; // 90 minutes in milliseconds
+const startTimerPassword = '1234'; // Replace with your desired password
+const countdownFilePath = 'countdownStartTime.txt';
 
-
-wss.on('connection', (ws) => {
-    console.log('Client connected');
-
-    ws.on('message', (message) => {
-        const trimmedMessage = message.trim(); // 去除多餘空格
-        console.log(`Received: ${trimmedMessage}`);
-        if (trimmedMessage === 'START' || trimmedMessage === 'broadcastCountdown') {
-            broadcastCountdown();
-        } else {
-            console.log(`Unknown message received: ${trimmedMessage}`);
-        }
-    });
-        
-
-    ws.on('close', () => {
-        console.log('Client disconnected');
-    });
-
-    ws.send('Welcome to WebSocket server!');
-});
-
-// 廣播倒計時功能
-function broadcastCountdown() {
-    console.log('Attempting to broadcast START_COUNTDOWN...');
-    let sentCount = 0; // 紀錄成功廣播的客戶端數量
-    wss.clients.forEach((client) => {
-        if (client.readyState === WebSocket.OPEN) {
-            client.send('START_COUNTDOWN');
-            console.log('START_COUNTDOWN sent to a client');
-            sentCount++;
-        }
-    });
-    console.log(`Broadcast complete. Messages sent to ${sentCount} clients.`);
+// Read countdown start time from file if it exists
+if (fs.existsSync(countdownFilePath)) {
+    const fileContent = fs.readFileSync(countdownFilePath, 'utf8');
+    countdownStartTime = parseInt(fileContent, 10);
 }
-
-// 使用 readline 接收終端輸入
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-});
-
-rl.on('line', (input) => {
-    if (input.trim() === 'broadcastCountdown') {
-        broadcastCountdown();
-    } else {
-        console.log(`Unknown command: ${input}`);
-    }
-});
 
 // 健康檢查路由
 server.on('request', (req, res) => {
@@ -81,6 +39,58 @@ server.on('request', (req, res) => {
     }
 });
 
-// 掛載廣播函數和 WebSocket 伺服器到全局作用域（可選）
-global.broadcastCountdown = broadcastCountdown;
-global.wss = wss;
+// API endpoint to get the start time
+app.get('/getStartTime', (req, res) => {
+    if (countdownStartTime) {
+        res.json({ startTime: countdownStartTime, duration: countdownDuration });
+    } else {
+        res.status(404).json({ message: 'Countdown has not started yet' });
+    }
+});
+
+// API endpoint to start the countdown timer
+app.get('/startTimer', (req, res) => {
+    const { password } = req.query;
+    if (password !== startTimerPassword) {
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    if (!countdownStartTime) {
+        countdownStartTime = new Date().getTime();
+        fs.writeFileSync(countdownFilePath, countdownStartTime.toString());
+        res.json({ message: 'Countdown started', startTime: countdownStartTime, duration: countdownDuration });
+    } else {
+        res.status(400).json({ message: 'Countdown already started' });
+    }
+});
+
+// API endpoint to reset the countdown timer
+app.get('/resetTimer', (req, res) => {
+    const { password } = req.query;
+    if (password !== startTimerPassword) {
+        return res.status(403).json({ message: 'Unauthorized' });
+    }
+
+    countdownStartTime = null;
+    if (fs.existsSync(countdownFilePath)) {
+        fs.unlinkSync(countdownFilePath);
+    }
+    res.json({ message: 'Countdown timer reset' });
+});
+
+// API endpoint to get the remaining time of the countdown
+app.get('/getRemainingTime', (req, res) => {
+    if (countdownStartTime) {
+        const now = new Date().getTime();
+        const countdownDate = countdownStartTime + countdownDuration;
+        const remainingTime = countdownDate - now;
+
+        if (remainingTime > 0) {
+            res.json({ remainingTime });
+        } else {
+            res.json({ message: 'Event Ended' });
+        }
+    } else {
+        res.status(404).json({ message: 'Countdown has not started yet' });
+    }
+});

@@ -48,43 +48,13 @@
 <body>
     <button onclick="window.location.href='map.html'">Go to Map</button>
     <h1>NTU Run for Money Countdown</h1>
-    <div id="timer">Waiting to start...</div>
+    <div id="timer"></div>
 
     <script>
-        // 建立 WebSocket 連接
-        const socket = new WebSocket(`wss://${window.location.host}`);
-
-        socket.addEventListener('open', () => {
-            console.log('WebSocket connection established');
-        });
-
-        socket.addEventListener('message', (event) => {
-            console.log('Message from server:', event.data);
-            if (event.data === 'START_COUNTDOWN') {
-                startCountdownTimer();
-            }
-        });
-
-        socket.addEventListener('error', (error) => {
-            console.error('WebSocket connection error:', error);
-        });
-
-        socket.addEventListener('close', () => {
-            console.log('WebSocket connection closed');
-        });
-
-        // 發送 START 指令
-        function startCountdown() {
-            if (socket.readyState === WebSocket.OPEN) {
-                socket.send('START');
-            } else {
-                console.error('WebSocket is not open');
-            }
-        }
 
         // 倒數計時功能
-        function startCountdownTimer() {
-            const countdownDate = new Date().getTime() + 90 * 60 * 1000; // 90分鐘倒數
+        function startCountdownTimer(startTime, duration) {
+            const countdownDate = new Date(startTime).getTime() + duration;
             const timerInterval = setInterval(() => {
                 const now = new Date().getTime();
                 const distance = countdownDate - now;
@@ -97,10 +67,25 @@
 
                 if (distance < 0) {
                     clearInterval(timerInterval);
-                    document.getElementById('timer').innerHTML = 'Time is up!';
+                    document.getElementById('timer').innerHTML = 'Event Ended!';
                 }
             }, 1000);
         }
+
+        // Fetch the start time from the server
+        fetch('/getStartTime')
+            .then(response => response.json())
+            .then(data => {
+                if (data.startTime) {
+                    startCountdownTimer(data.startTime, data.duration);
+                } else {
+                    document.getElementById('timer').innerHTML = 'Event has not started yet';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching start time:', error);
+                document.getElementById('timer').innerHTML = 'Error fetching start time';
+            });
     </script>
 </body>
 </html>
