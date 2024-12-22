@@ -25,7 +25,12 @@ wss.on('connection', (ws) => {
 
     ws.on('message', (message) => {
         console.log(`Received: ${message}`);
+        // 處理 START 指令，執行廣播
         if (message === 'START') {
+            broadcastCountdown();
+        }
+        // 處理 broadcastCountdown 指令，執行廣播
+        if (message === 'broadcastCountdown') {
             broadcastCountdown();
         }
     });
@@ -34,8 +39,10 @@ wss.on('connection', (ws) => {
         console.log('Client disconnected');
     });
 
+    // 向新連接的客戶端發送歡迎消息
     ws.send('Welcome to WebSocket server!');
 });
+
 
 // 廣播倒計時功能
 function broadcastCountdown() {
