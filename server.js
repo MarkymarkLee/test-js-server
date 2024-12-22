@@ -29,6 +29,8 @@ wss.on('connection', (ws) => {
         console.log(`Received: ${message}`);
         if (message === 'START' || message === 'broadcastCountdown') {
             broadcastCountdown();
+        } else {
+            console.log(`Unknown message received: ${message}`);
         }
     });
 
@@ -41,8 +43,8 @@ wss.on('connection', (ws) => {
 
 // 廣播倒計時功能
 function broadcastCountdown() {
-    console.log('Broadcasting START_COUNTDOWN to all clients...');
-    let sentCount = 0; // 用來記錄成功發送的客戶端數量
+    console.log('Attempting to broadcast START_COUNTDOWN...');
+    let sentCount = 0; // 紀錄成功廣播的客戶端數量
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send('START_COUNTDOWN');
@@ -50,7 +52,7 @@ function broadcastCountdown() {
             sentCount++;
         }
     });
-    console.log(`Broadcasted to ${sentCount} clients.`);
+    console.log(`Broadcast complete. Messages sent to ${sentCount} clients.`);
 }
 
 // 使用 readline 接收終端輸入
@@ -64,6 +66,15 @@ rl.on('line', (input) => {
         broadcastCountdown();
     } else {
         console.log(`Unknown command: ${input}`);
+    }
+});
+
+// 健康檢查路由
+server.on('request', (req, res) => {
+    if (req.url === '/health') {
+        res.writeHead(200, { 'Content-Type': 'text/plain' });
+        res.end('OK');
+        console.log('Health check passed');
     }
 });
 
